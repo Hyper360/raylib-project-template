@@ -14,7 +14,7 @@ WINLFLAGS = -Llib/windows -lraylib -lmingw32 -lglu32 -lopengl32 -lgdi32 -lwinmm
 # -static-libgcc -static-libstdc++
 
 
-SRCS = $(wildcard srcs/*.cpp) # Recursively linking the source files
+SRCS = $(wildcard src/*.cpp) # Recursively linking the source files
 
 OBJS = $(SRCS:.cpp=.o) # Turning Source files into object files
 
@@ -27,29 +27,27 @@ PLATFORM ?= LINUX
 ifeq (${PLATFORM}, LINUX)
 all: $(EXEC) # Creating a default target
 
+
+# Rule to make source files object files
+%.o : %.cpp
+	$(CXX) $(CFLAGS) $(INCLUDE) -c -o $@ $<
+
+# $< is a shorthand for the first prerequisite
 # Rule to create executable
-$(EXEC): $(OBJS)
+$(EXEC) : $(OBJS)
 	$(CXX) -o $@ $^ $(LFLAGS)
 
 # $@ is a shorthand for the target $(EXEC)
 # $^ is a shorthand for the prerequisites $(OBJS)
-
-# Rule to make source files object files
-%.o : %.cpp
-	#@echo "Building $@"
-	$(CXX) $(CFLAGS) $(INCLUDE) -c -o $@ $<
-# $< is a shorthand for the first prerequisite
 
 # Cleaning target
 clean:
 	rm -f $(EXEC) $(OBJS)
 
 move:
-	@mkdir -p linux/
-	@mkdir -p linux/res/
-	mv ProjectName linux/
-	cp res/* linux/res/
-	cp ProjectNameLogo.png linux/
+	mv ProjectName releases/linux/
+	cp res/* releases/linux/res/
+	cp ProjectNameLogo.png releases/linux/
 
 .PHONY: all clean src
 endif
