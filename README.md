@@ -5,7 +5,8 @@ A **decent** template for Raylib projects. This template was specifically made f
 First you need to have these dependencies installed:
 - make
 - C/C++ compiler of your choice
-- Emscripten (For WASM only)
+- Emscripten (Optional for WASM only)
+- Python (Optional)
 
 ## Usage
 Use the make command to build. The default target is linux.
@@ -20,7 +21,24 @@ make PLATFORM=WINDOWS # x64 Windows binary
 make PLATFORM=WEB
 ```
 
+## Web Setup
+In order to build to the web, you need to clone and install [emscripten](https://github.com/emscripten-core/emscripten) and build it on your computer only then can you build to the web.
+
+When done building run:
+```bash
+python -m http.server PORT
+```
+And then open the .html file in `http://localhost:PORT` 
+
+Alternatively, you can run 
+
+```bash
+emrun OuputFile.html
+```
+
+There is also some web stuff in the main.cpp file. If you don't need this just remove it.
+
 > [!NOTE]
-> Stronger support will be added for windows and wasm in the future.
+> Stronger support will be added for windows in the future.
 
 Enjoy!

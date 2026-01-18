@@ -2,14 +2,18 @@ CXX = g++ # Compiler
 
 WINCXX = x86_64-w64-mingw32-g++ # MinGW cross-compiler for Windows
 
-EMCC = wasm3
+EMCC = em++
 
 CFLAGS = -std=c++20 -Wall -Wextra -O3 -lraylib
-
+WEBCFLAGS = -Llib/web -lraylib -DPLATFORM_WEB -Os
 INCLUDE = -Iinclude/ # Flags
 
+WEBLFLAGS = -s USE_GLFW=3 \
+						-s ASYNCIFY \
+						-s WASM=1 \
+						-s ALLOW_MEMORY_GROWTH=1 \
+						--shell-file src/web/shell.html
 LFLAGS = -Llib/linux/ -lraylib # Libraries 
-EMLFLAGS = -Llib/web/ -lraylib -s USE_GLFW=3 -s USE_WEBGL2=1 -s ASYNCIFY -s TOTAL_MEMORY=256MB --preload-file AmbienceMachineLogo.png
 WINLFLAGS = -Llib/windows -lraylib -lmingw32 -lglu32 -lopengl32 -lgdi32 -lwinmm
 # -static-libgcc -static-libstdc++
 
@@ -45,22 +49,30 @@ clean:
 	rm -f $(EXEC) $(OBJS)
 
 move:
-	mv ProjectName releases/linux/
-	cp res/* releases/linux/res/
-	cp ProjectNameLogo.png releases/linux/
+	mv $(EXEC) release/linux/
+	cp -r res/* release/linux/res/
+	cp ProjectNameLogo.png release/linux/
 
-.PHONY: all clean src
+.PHONY:
+	all clean
 endif
 
 ifeq ($(PLATFORM), WEB)
 all: $(WASM_EXEC)
 
 $(WASM_EXEC) : $(SRCS)
-	$(EMCC) $(INCLUDE) $^ -o $@ $(EMLFLAGS)
+	$(EMCC) $(INCLUDE) $^ -o $@ $(WEBCFLAGS) $(WEBLFLAGS)
 
-clean: rm -f $(WASM_EXEC) *.wasm *.js *.html
+clean:
+	rm *.wasm *.js *.html
 
-.PHONY: all clean src
+move:
+	mv *.wasm *.js *.html release/web/
+	cp -r res/* release/web/res/
+	cp ProjectNameLogo.png release/web/
+
+.PHONY:
+	all clean
 endif
 ifeq ($(PLATFORM), WINDOWS)
 all: $(WIN_EXEC)
@@ -76,12 +88,12 @@ clean:
 	rm -f $(WIN_EXEC) $(OBJS)
 
 move:
-	@mkdir -p windows/
-	@mkdir -p windows/res/
-	mv ProjectName.exe windows/
-	cp res/* windows/res/
-	cp lib/windows/*.dll windows/
-	cp ProjectNameLogo.png windows/
+	@mkdir -p release/windows/
+	@mkdir -p release/windows/res/
+	mv $(WIN_EXEC) release/windows/
+	cp -r res/* release/windows/res/
+	cp ProjectNameLogo.png release/windows/
 
-.PHONY: all clean src
+.PHONY:
+	all clean
 endif
